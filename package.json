@@ -1,0 +1,30 @@
+{
+  "name": "shopify",
+  "version": "1.0.0",
+  "description": "shopify theme for nithyaamirtham",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kavinrajsi/nithyaamirtham.git"
+  },
+  "author": "kavinrajsi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kavinrajsi/nithyaamirtham/issues"
+  },
+  "homepage": "https://github.com/kavinrajsi/nithyaamirtham#readme",
+  "dependencies": {
+    "@shopify/prettier-plugin-liquid": "github:shopify/prettier-plugin-liquid",
+    "gulp": "^5.0.0",
+    "gulp-autoprefixer": "^9.0.0",
+    "gulp-cli": "^3.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-minify": "^3.1.0",
+    "gulp-sass": "^6.0.1",
+    "prettier": "^3.5.3",
+    "sass": "^1.86.3"
+  }
+}
