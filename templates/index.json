@@ -15,6 +15,7 @@
         "media_xFT9fe": {
           "type": "media",
           "settings": {
+            "shopify_video": "shopify://files/videos/videoplayback.webm",
             "video_link": "https://www.youtube.com/watch?v=joNu6vgsn1I",
             "fallback_image": "shopify://shop_images/adidas-sport-polo-shirt-collegiate-navy-front-669a361d12fd1.jpg",
             "alt_text": "Brand Story Image"
