@@ -1,0 +1,218 @@
+{% schema %}
+{
+  "name": "Legacy Brand Story",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "TASTE THE LEGACY TODAY!"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Since 1948, our Indian brand has been delighting customers with an exquisite mithai, spice powders, namkeens, and tangy pickles."
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Number of Columns",
+      "default": 5
+    },
+    {
+      "type": "paragraph",
+      "content": "Add up to 6 videos or images"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media",
+      "name": "Media Item",
+      "settings": [
+        {
+          "type": "video",
+          "id": "shopify_video",
+          "label": "Shopify Video"
+        },
+        {
+          "type": "video_url",
+          "id": "video_link",
+          "label": "Video link",
+          "accept": [
+            "youtube",
+            "vimeo"
+          ],
+          "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+          "info": "Accepts YouTube or Vimeo links"
+        },
+        {
+          "type": "image_picker",
+          "id": "fallback_image",
+          "label": "Fallback Image"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Alternative Text",
+          "default": "Brand Story Image"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Legacy Brand Story",
+      "blocks": [
+        {
+          "type": "media"
+        },
+        {
+          "type": "media"
+        },
+        {
+          "type": "media"
+        },
+        {
+          "type": "media"
+        },
+        {
+          "type": "media"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+.legacy-brand-story {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+}
+
+.legacy-brand-story__heading {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.legacy-brand-story__description {
+  color: #6b7280;
+  max-width: 42rem;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.legacy-brand-story__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.legacy-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.legacy-media:hover {
+  transform: scale(1.05);
+}
+
+.legacy-media video,
+.legacy-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+{% endstylesheet %}
+
+{% javascript %}
+document.addEventListener('DOMContentLoaded', () => {
+  const legacyMediaElements = document.querySelectorAll('.legacy-media');
+
+  legacyMediaElements.forEach(mediaElement => {
+    const video = mediaElement.querySelector('video');
+
+    if (video) {
+      video.muted = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.loop = true;
+
+      // Ensure video starts playing
+      video.play().catch(error => {
+        console.log('Autoplay was prevented:', error);
+      });
+    }
+  });
+});
+{% endjavascript %}
+
+<div class="legacy-brand-story">
+  <div class="legacy-brand-story__heading">
+    {{ section.settings.heading }}
+  </div>
+
+  <div class="legacy-brand-story__description">
+    {{ section.settings.description }}
+  </div>
+
+  {% assign columns = section.settings.columns | default: 5 %}
+  <div class="legacy-brand-story__grid" style="grid-template-columns: repeat({{ columns }}, 1fr);">
+    {% for block in section.blocks %}
+      {% if block.type == 'media' %}
+        <div class="legacy-media">
+          {% assign video_source = null %}
+
+          {% if block.settings.shopify_video %}
+            {% assign video_source = block.settings.shopify_video %}
+          {% elsif block.settings.video_link %}
+            {% assign video_source = block.settings.video_link %}
+          {% endif %}
+
+          {% if video_source %}
+            <video
+              playsinline
+              autoplay
+              muted
+              loop
+              preload="auto"
+              poster="{{ block.settings.fallback_image | img_url: '400x' }}"
+              aria-label="{{ block.settings.alt_text }}"
+            >
+              {% if block.settings.shopify_video %}
+                {% for source in video_source.sources %}
+                  <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                {% endfor %}
+              {% else %}
+                <source src="{{ video_source | video_url }}" type="video/mp4">
+              {% endif %}
+
+              {% if block.settings.fallback_image %}
+                <img
+                  src="{{ block.settings.fallback_image | img_url: '400x' }}"
+                  alt="{{ block.settings.alt_text }}"
+                >
+              {% endif %}
+
+              Your browser does not support the video tag.
+            </video>
+          {% elsif block.settings.fallback_image %}
+            {{ block.settings.fallback_image | image_url: width: 400 | image_tag:
+              alt: block.settings.alt_text
+            }}
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
