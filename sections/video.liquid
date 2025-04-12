@@ -89,63 +89,80 @@
 }
 {% endschema %}
 
-{% stylesheet %}
-.legacy-brand-story {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 4rem 1rem;
-}
+<div class="legacy-brand-story container mx-auto px-4 py-16">
+  <div class="text-center mb-12">
+    <h2 class="text-3xl font-bold mb-4">{{ section.settings.heading }}</h2>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      {{ section.settings.description }}
+    </p>
+  </div>
 
-.legacy-brand-story__heading {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  text-align: center;
-}
+  {% assign columns = section.settings.columns | default: 5 %}
+  <div class="grid grid-cols-{{ columns }} gap-4">
+    {% for block in section.blocks %}
+      {% if block.type == 'media' %}
+        <div class="legacy-media relative overflow-hidden rounded-lg shadow-md">
+          {% assign video_source = null %}
 
-.legacy-brand-story__description {
-  color: #6b7280;
-  max-width: 42rem;
-  margin: 0 auto 3rem;
-  text-align: center;
-}
+          {% if block.settings.shopify_video %}
+            {% assign video_source = block.settings.shopify_video %}
+          {% elsif block.settings.video_link %}
+            {% assign video_source = block.settings.video_link %}
+          {% endif %}
 
-.legacy-brand-story__grid {
-  display: grid;
-  gap: 1rem;
-}
+          {% if video_source %}
+            <video
+              class="w-full h-full object-cover"
+              playsinline
+              autoplay
+              muted
+              loop
+              preload="auto"
+              poster="{{ block.settings.fallback_image | img_url: '400x' }}"
+              aria-label="{{ block.settings.alt_text }}"
+            >
+              {% if block.settings.shopify_video %}
+                {% for source in video_source.sources %}
+                  <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                {% endfor %}
+              {% else %}
+                <source src="{{ video_source | video_url }}" type="video/mp4">
+              {% endif %}
 
-.legacy-media {
-  position: relative;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  aspect-ratio: 1 / 1;
-}
+              {% if block.settings.fallback_image %}
+                <img
+                  src="{{ block.settings.fallback_image | img_url: '400x' }}"
+                  alt="{{ block.settings.alt_text }}"
+                  class="w-full h-full object-cover"
+                >
+              {% endif %}
 
-.legacy-media:hover {
-  transform: scale(1.05);
-}
+              Your browser does not support the video tag.
+            </video>
+          {% elsif block.settings.fallback_image %}
+            {{ block.settings.fallback_image | image_url: width: 400 | image_tag:
+              class: 'w-full h-full object-cover',
+              alt: block.settings.alt_text
+            }}
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
 
-.legacy-media video,
-.legacy-media img,
-.legacy-media iframe {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-{% endstylesheet %}
+<style>
+  .legacy-media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
 
-{% javascript %}
-document.addEventListener('DOMContentLoaded', () => {
-  const legacyMediaElements = document.querySelectorAll('.legacy-media');
-
-  legacyMediaElements.forEach(mediaElement => {
-    const video = mediaElement.querySelector('video');
-    const iframe = mediaElement.querySelector('iframe');
-
-    if (video) {
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const videos = document.querySelectorAll('.legacy-media video');
+    videos.forEach(video => {
       video.muted = true;
       video.autoplay = true;
       video.playsInline = true;
@@ -155,76 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
       video.play().catch(error => {
         console.log('Autoplay was prevented:', error);
       });
-    }
+    });
   });
-});
-{% endjavascript %}
-
-<div class="legacy-brand-story">
-  <div class="legacy-brand-story__heading">
-    {{ section.settings.heading }}
-  </div>
-
-  <div class="legacy-brand-story__description">
-    {{ section.settings.description }}
-  </div>
-
-  {% assign columns = section.settings.columns | default: 5 %}
-  <div class="legacy-brand-story__grid" style="grid-template-columns: repeat({{ columns }}, 1fr);">
-    {% for block in section.blocks %}
-      {% if block.type == 'media' %}
-        <div class="legacy-media">
-          {% if block.settings.shopify_video %}
-            <video
-              playsinline
-              autoplay
-              muted
-              loop
-              preload="auto"
-              {% if block.settings.fallback_image %}
-                poster="{{ block.settings.fallback_image | image_url: width: 400 }}"
-              {% endif %}
-              aria-label="{{ block.settings.alt_text }}"
-            >
-              {% for source in block.settings.shopify_video.sources %}
-                <source
-                  src="{{ source.url | asset_url }}"
-                  type="{{ source.mime_type }}"
-                >
-              {% endfor %}
-
-              {% if block.settings.fallback_image %}
-                <img
-                  src="{{ block.settings.fallback_image | image_url: width: 400 }}"
-                  width="{{ block.settings.fallback_image.width }}"
-                  height="{{ block.settings.fallback_image.height }}"
-                  alt="{{ block.settings.alt_text }}"
-                >
-              {% endif %}
-
-              Your browser does not support the video tag.
-            </video>
-          {% elsif block.settings.video_link %}
-            <iframe
-              src="{{ block.settings.video_link | external_video_url }}"
-              width="1080"
-              height="1080"
-              frameborder="0"
-              allowfullscreen
-              title="{{ block.settings.alt_text }}"
-              class="w-full h-full object-cover"
-            ></iframe>
-          {% elsif block.settings.fallback_image %}
-            {{ block.settings.fallback_image | image_url: width: 400 | image_tag:
-              loading: 'lazy',
-              width: block.settings.fallback_image.width,
-              height: block.settings.fallback_image.height,
-              alt: block.settings.alt_text,
-              class: 'w-full h-full object-cover'
-            }}
-          {% endif %}
-        </div>
-      {% endif %}
-    {% endfor %}
-  </div>
-</div>
+</script>
