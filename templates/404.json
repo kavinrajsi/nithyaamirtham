@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-404",
+      "settings": {
+        "title": "404",
+        "description": "Sorry, the page you are looking for does not exist.",
+        "button_text": "Go to homepage",
+        "button_link": "/"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}
